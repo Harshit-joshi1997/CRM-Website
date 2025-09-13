@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 export default function App({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      {/* Sidebar */}
+      
       <AppSidebar />
 
       {/* Main Content */}
