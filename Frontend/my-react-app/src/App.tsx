@@ -1,18 +1,19 @@
 import './App.css'
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import { Outlet } from "react-router-dom"
 
-export default function App({ children }: { children: React.ReactNode }) {
+export default function App() {
   return (
     <SidebarProvider>
       
       <AppSidebar />
 
       {/* Main Content */}
-      <main >
+      <main>
         {/* Sidebar toggle button */}
         <SidebarTrigger />
-        {children}
+        <Outlet />
       </main>
     </SidebarProvider>
   )
