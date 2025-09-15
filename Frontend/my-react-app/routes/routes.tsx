@@ -7,6 +7,7 @@ import Tasks from "@/components/Tasks"
 import Calendar from "@/components/Calendar"
 import Employees from "@/components/Employees"
 import Holidays from "@/components/Holidays"
+import Claims from "@/components/Claims"
 
 export default function AppRoutes(){
     return(
@@ -26,6 +27,7 @@ export default function AppRoutes(){
                 <Route path="/calendar" element={<Calendar/>} />
                 <Route path="/employees" element={<Employees/>} />
                 <Route path="/holidays" element={<Holidays/>} />
+                <Route path="/claims" element={<Claims/>} />
             </Route>
         </Routes>
     )

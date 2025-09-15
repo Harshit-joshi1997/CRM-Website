@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings, LayoutDashboard ,TagsIcon,DownloadCloud,BellIcon,UserRound, SunDim} from "lucide-react"
+import { Calendar, Home, Inbox, Search, Settings, LayoutDashboard ,TagsIcon,DownloadCloud,BellIcon,UserRound, SunDim, IndianRupee} from "lucide-react"
 import { NavLink } from "react-router-dom"
 import {
   Sidebar,
@@ -18,7 +18,7 @@ const items = [
   { title: "Inbox", url: "#", icon: Inbox },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Notifications", url: "#", icon: BellIcon },
-  { title: "Search", url: "#", icon: Search },
+  { title: "Claims & Status", url: "/claims", icon: IndianRupee },
   { title: "Employees", url: "/employees", icon: UserRound },
   { title: "Holidays", url: "/holidays", icon: SunDim },
 ]
