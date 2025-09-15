@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Github, Apple } from "lucide-react"
 import { NavLink } from "react-router-dom"
 
-export default function LoginPage() {
+export default function Login() {
   return (
     <div className="max-w-screen-h-screen -mt-1 p-5 mx-auto rounded-lg flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400
      border-lg">
@@ -38,14 +38,12 @@ export default function LoginPage() {
         <div className="w-1/2 bg-gray-200 p-10 text-white flex items-center justify-center">
           <Card className="w-full max-w-md bg-transparent border-0 shadow-none">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-              <p className="text-sm text-Black-400">Already have an account? <NavLink to="/login" className="underline cursor-pointer">Login</NavLink></p>
+              <CardTitle className="text-2xl font-bold">Login </CardTitle>
+              
+           
             </CardHeader>
+            
             <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Your Name" className="bg-[#2A273B] border-none text-white" />
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" placeholder="name@example.com" className="bg-[#2A273B] border-none text-white" />
@@ -61,8 +59,8 @@ export default function LoginPage() {
                   I agree to the terms and conditions
                 </Label>
               </div> */}
-            <NavLink to="/login">
-              <Button className="w-full mt-5 bg-blue-600 hover:bg-blue-700 bg-purple-600 hover:bg-purple-700">Create account</Button>
+            <NavLink to="/dashboard">
+              <Button className="w-full mt-5 bg-blue-600 hover:bg-blue-700 bg-purple-600 hover:bg-purple-700">Login</Button>
             </NavLink>
               <div className="flex items-center gap-2">
                 <div className="h-[1px] flex-1 bg-gray-600" />
@@ -77,7 +75,17 @@ export default function LoginPage() {
                 <Button variant="outline" className="w-full flex items-center gap-2">
                   <Apple className="h-4 w-4" /> Apple
                 </Button>
+                
               </div>
+              <span className="text-sm text-gray-400 mb-2">Doesnt have a account?</span>
+              <NavLink to="/register" >
+              <u className="underline mx-2 cursor-pointer text-sm text-blue-600">Register</u>
+                </NavLink>
+                <br/>
+                <span className="text-sm text-gray-400">Forgot Password?</span>
+                <NavLink to="/forgot-password">
+                <u className="underline mx-2 cursor-pointer text-sm text-blue-600">Reset</u>
+                </NavLink>
             </CardContent>
           </Card>
         </div>

@@ -1,4 +1,5 @@
-import { Calendar, Home, Inbox, Search, Settings, LayoutDashboard ,TagsIcon,DownloadCloud,BellIcon} from "lucide-react"
+import { Calendar, Home, Inbox, Search, Settings, LayoutDashboard ,TagsIcon,DownloadCloud,BellIcon,UserRound, SunDim} from "lucide-react"
+import { NavLink } from "react-router-dom"
 import {
   Sidebar,
   SidebarContent,
@@ -12,14 +13,14 @@ import {
 
 // Menu items
 const items = [
-  { title: "Dashboard", url: "#", icon: LayoutDashboard },
-  { title: "Tags", url: "#", icon: TagsIcon },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Tasks", url: "/tasks", icon: TagsIcon },
   { title: "Inbox", url: "#", icon: Inbox },
-  { title: "Calendar", url: "#", icon: Calendar },
+  { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Notifications", url: "#", icon: BellIcon },
   { title: "Search", url: "#", icon: Search },
-  { title: "Download", url: "#", icon: DownloadCloud },
-  { title: "Settings", url: "#", icon: Settings },
+  { title: "Employees", url: "/employees", icon: UserRound },
+  { title: "Holidays", url: "/holidays", icon: SunDim },
 ]
 
 export function AppSidebar() {
@@ -33,13 +34,15 @@ export function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a
-                      href={item.url}
-                      className="text-blue-600 text-lg font-medium transition-all duration-200 hover:scale-110"
+                  <NavLink
+                    to={item.url}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 text-lg font-medium transition-all duration-200 hover:scale-110 ${isActive ? "text-blue-600" : "text-black"}`
+                    }
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                    </a>
+                  </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
