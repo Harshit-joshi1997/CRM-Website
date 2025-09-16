@@ -43,6 +43,10 @@ export default function Login() {
       const response = await axios.post("http://localhost:5000/login", values)
       console.log("Login successful:", response.data)
       toast.success("Login successful!")
+      // Save user data to localStorage to be used by other components
+      if (response.data.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+      }
       navigate("/dashboard")
     } catch (error) {
       console.error("Login failed:", error)

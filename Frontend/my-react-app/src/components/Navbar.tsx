@@ -30,8 +30,8 @@ export function Navbar() {
 };
 
 interface User {
-  firstName: string;
-  lastName: string;
+  name: string;
+  // You can add other properties like email, id if needed
 }
 
  const [user, setUser] = useState<User | null>(null);
@@ -39,13 +39,22 @@ interface User {
 useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+      }
     }
   }, []);
 
-  const initials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-    : "U";
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "U";
+    const names = name.split(" ").filter(Boolean);
+    return names.length > 1
+      ? `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase()
+      : name.substring(0, 2).toUpperCase();
+  };
+  const initials = getInitials(user?.name);
 
   return (
     <header className="flex fixed top-0 right-0 z-45 h-14 items-center justify-between border-b bg-background px-4 shadow-sm w-[calc(100%-16rem)] ml-64">
@@ -87,15 +96,18 @@ useEffect(() => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/profile.jpg" alt="User profile" />
-                <AvatarFallback>{initials}</AvatarFallback>
+                {/* The fallback is only shown if AvatarImage fails to load.
+                    Since there's no dynamic user image, we'll just show the fallback. */}
+                <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem  disabled>
-              {user ? `${initials} - ${user.firstName} ${user.lastName}` : "Guest"}
+            <DropdownMenuItem disabled>
+              {user ? `${initials} - ${user.name}` : "Guest"}
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
