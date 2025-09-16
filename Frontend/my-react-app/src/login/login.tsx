@@ -62,7 +62,7 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-screen-h-screen -mt-1 p-5 mx-auto rounded-lg flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400 border-lg">
+    <div className="w-full h-screen flex flex-col items-center justify-center  p-5 mx-auto  flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400 border-lg">
       <div className="w-full max-w-5xl bg-black flex rounded-2xl overflow-hidden shadow-xl">
         {/* Left Section */}
         <div className="w-1/2 bg-blue-900 text-white flex flex-col justify-between p-8">
