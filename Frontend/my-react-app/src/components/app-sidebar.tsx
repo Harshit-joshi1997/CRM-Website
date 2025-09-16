@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings, LayoutDashboard ,TagsIcon,DownloadCloud,BellIcon,UserRound, SunDim, IndianRupee} from "lucide-react"
+import { Calendar, LayoutDashboard ,TagsIcon,UserRound, SunDim, IndianRupee, Ship, Building2,Globe} from "lucide-react"
 import { NavLink } from "react-router-dom"
 import {
   Sidebar,
@@ -10,15 +10,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Children } from "react"
 
 // Menu items
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Tasks", url: "/tasks", icon: TagsIcon },
-  { title: "Inbox", url: "#", icon: Inbox },
+  { title: "Annual Increment", url: "/increment", icon: Building2 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Notifications", url: "#", icon: BellIcon },
-  { title: "Claims & Status", url: "/claims", icon: IndianRupee },
+  { title: "Leaves", url: "/leaves", icon: Ship },
+  { title: "Claims & expenses", url: "/claims", icon: IndianRupee },
   { title: "Employees", url: "/employees", icon: UserRound },
   { title: "Holidays", url: "/holidays", icon: SunDim },
 ]
@@ -28,7 +29,7 @@ export function AppSidebar() {
     <Sidebar className="bg-gradient-to-b from-gray-100 to-gray-200 text-black border-r border-gray-200">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="   text-xl font-lg font-medium text-black">CongoTech</SidebarGroupLabel>
+          <SidebarGroupLabel className="   text-xl  text-bold text-indigo-600 "> CongoTech<Globe color="#2626c5ff" /></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

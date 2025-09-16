@@ -1,24 +1,73 @@
 // app/login/page.tsx
+"use client"
 
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useNavigate, NavLink } from "react-router-dom"
+import axios from "axios"
+import * as React from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-// import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Github, Apple } from "lucide-react"
-import { NavLink } from "react-router-dom"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Github, Apple, Eye, EyeOff } from "lucide-react"
+import { toast } from "sonner"
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+})
 
 export default function Login() {
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = React.useState(false)
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await axios.post("http://localhost:5000/login", values)
+      console.log("Login successful:", response.data)
+      toast.success("Login successful!")
+      navigate("/dashboard")
+    } catch (error) {
+      console.error("Login failed:", error)
+      let errorMessage = "Invalid credentials. Please try again."
+      if (axios.isAxiosError(error) && error.response) {
+        const errorData = error.response.data
+        if (errorData && typeof errorData.message === "string") {
+          errorMessage = errorData.message
+        }
+      }
+      toast.error(`Login failed: ${errorMessage}`)
+    }
+  }
+
   return (
-    <div className="max-w-screen-h-screen -mt-1 p-5 mx-auto rounded-lg flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400
-     border-lg">
+    <div className="max-w-screen-h-screen -mt-1 p-5 mx-auto rounded-lg flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400 border-lg">
       <div className="w-full max-w-5xl bg-black flex rounded-2xl overflow-hidden shadow-xl">
-        
         {/* Left Section */}
         <div className="w-1/2 bg-blue-900 text-white flex flex-col justify-between p-8">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">AMU</h1>
-            <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black">
+            <Button
+              variant="outline"
+              className="text-white border-white hover:bg-white hover:text-black"
+            >
               Sign In
             </Button>
           </div>
@@ -29,7 +78,9 @@ export default function Login() {
                 alt="background"
                 className="rounded-lg mb-6"
               />
-              <p className="text-lg font-medium">Capturing Moments, <br/> Creating Memories</p>
+              <p className="text-lg font-medium">
+                Capturing Moments, <br /> Creating Memories
+              </p>
             </div>
           </div>
         </div>
@@ -38,54 +89,113 @@ export default function Login() {
         <div className="w-1/2 bg-gray-200 p-10 text-white flex items-center justify-center">
           <Card className="w-full max-w-md bg-transparent border-0 shadow-none">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">Login </CardTitle>
-              
-           
+              <CardTitle className="text-2xl font-bold">Login</CardTitle>
             </CardHeader>
-            
-            <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" placeholder="name@example.com" className="bg-[#2A273B] border-none text-white" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="••••••••" className="bg-[#2A273B] border-none text-white mb-2" />
-              </div>
 
-              {/* <div className="flex items-center space-x-2">
-                <Checkbox id="terms" />
-                <Label htmlFor="terms" className="text-sm text-gray-300">
-                  I agree to the terms and conditions
-                </Label>
-              </div> */}
-            <NavLink to="/dashboard">
-              <Button className="w-full mt-5 bg-blue-600 hover:bg-blue-700 bg-purple-600 hover:bg-purple-700">Login</Button>
-            </NavLink>
-              <div className="flex items-center gap-2">
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                  {/* Email */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="name@example.com"
+                            {...field}
+                            className="bg-[#2A273B] border-none text-white"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Password with eye toggle */}
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              {...field}
+                              className="bg-[#2A273B] border-none text-white pr-10"
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Submit */}
+                  <Button
+                    type="submit"
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    disabled={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? "Logging in..." : "Login"}
+                  </Button>
+                </form>
+              </Form>
+
+              {/* OR divider */}
+              <div className="flex items-center gap-2 my-5">
                 <div className="h-[1px] flex-1 bg-gray-600" />
                 <span className="text-xs text-gray-400">OR</span>
                 <div className="h-[1px] flex-1 bg-gray-600" />
               </div>
 
-              <div className="flex gap-3">
-                <Button variant="outline" className="w-full hover:bg-white hover:bg-red-600 hover:text-white flex items-center gap-2">
+              {/* OAuth buttons */}
+              <div className="flex gap-3 mb-4">
+                <Button
+                  variant="outline"
+                  className="w-full hover:bg-red-600 hover:text-white flex items-center gap-2"
+                >
                   <Github className="h-4 w-4" /> Google
                 </Button>
                 <Button variant="outline" className="w-full flex items-center gap-2">
                   <Apple className="h-4 w-4" /> Apple
                 </Button>
-                
               </div>
-              <span className="text-sm text-gray-400 mb-2">Doesnt have a account?</span>
-              <NavLink to="/register" >
-              <u className="underline mx-2 cursor-pointer text-sm text-blue-600">Register</u>
+
+              {/* Links */}
+              <div className="text-sm text-gray-400">
+                Don’t have an account?
+                <NavLink
+                  to="/register"
+                  className="underline mx-2 cursor-pointer text-blue-600"
+                >
+                  Register
                 </NavLink>
-                <br/>
-                <span className="text-sm text-gray-400">Forgot Password?</span>
-                <NavLink to="/forgot-password">
-                <u className="underline mx-2 cursor-pointer text-sm text-blue-600">Reset</u>
+                <br />
+                Forgot Password?
+                <NavLink
+                  to="/forgot-password"
+                  className="underline mx-2 cursor-pointer text-blue-600"
+                >
+                  Reset
                 </NavLink>
+              </div>
             </CardContent>
           </Card>
         </div>

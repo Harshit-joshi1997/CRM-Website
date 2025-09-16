@@ -8,16 +8,17 @@ import Calendar from "@/components/Calendar"
 import Employees from "@/components/Employees"
 import Holidays from "@/components/Holidays"
 import Claims from "@/components/Claims"
+import { Leaves } from "@/components/Leaves"
+import { Increment } from "@/components/Increment"
 
 export default function AppRoutes(){
     return(
         <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<Login/>}/>
-            <Route path="/register" element={<LoginPage/>}/>
-            <Route path="/forgot-password" element={<LoginPage/>}/>
-            <Route path="/reset-password" element={<LoginPage/>}/>
-            <Route path="/verify-email" element={<LoginPage/>}/>
+            <Route path="/" element={<Login/>}/>
+            <Route path="/register" element={<Login/>}/>
+            <Route path="/forgot-password" element={<Login/>}/>
+            <Route path="/reset-password" element={<Login/>}/>
+            <Route path="/verify-email" element={<Login/>}/>
 
 
 
@@ -28,6 +29,8 @@ export default function AppRoutes(){
                 <Route path="/employees" element={<Employees/>} />
                 <Route path="/holidays" element={<Holidays/>} />
                 <Route path="/claims" element={<Claims/>} />
+                <Route path="/leaves" element={<Leaves/>} />
+                <Route path="/increment" element={<Increment/>} />
             </Route>
         </Routes>
     )
