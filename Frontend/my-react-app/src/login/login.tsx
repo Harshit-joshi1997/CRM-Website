@@ -1,15 +1,15 @@
-// app/login/page.tsx
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useNavigate, NavLink } from "react-router-dom"
-import axios from "axios"
-import * as React from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useAuth } from "@/Context/AuthContext";
+import { useNavigate, NavLink } from "react-router-dom";
+import axios from "axios";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,52 +17,54 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Github, Apple, Eye, EyeOff } from "lucide-react"
-import { toast } from "sonner"
+} from "@/components/ui/form";
+import { Github, Apple, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-})
+});
 
 export default function Login() {
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = React.useState(false)
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
+    defaultValues: { email: "", password: "" },
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("onSubmit called with:", values);
+    toast.info("Attempting to log in...");
     try {
-      const response = await axios.post("http://localhost:5000/login", values)
-      console.log("Login successful:", response.data)
-      toast.success("Login successful!")
-      // Save user data to localStorage to be used by other components
-      if (response.data.user) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+      const response = await axios.post("http://localhost:5000/login", values);
+      const { token, user } = response.data || {};
+      if (!token || !user) {
+        toast.error("Login failed: Invalid response from server.");
+        return;
       }
-      navigate("/dashboard")
+      login(token, user);
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (error) {
-      console.error("Login failed:", error)
-      let errorMessage = "Invalid credentials. Please try again."
-      if (axios.isAxiosError(error) && error.response) {
-        const errorData = error.response.data
-        if (errorData && typeof errorData.message === "string") {
-          errorMessage = errorData.message
-        }
+      console.error("Login failed:", error);
+      let errorMessage = "Invalid credentials. Please try again.";
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (axios.isAxiosError(error) && !error.response) {
+        errorMessage = "Cannot connect to the server. Please try again later.";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
-      toast.error(`Login failed: ${errorMessage}`)
+      toast.error(`Login failed: ${errorMessage}`);
     }
   }
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center  p-5 mx-auto  flex items-center justify-center bg-gradient-to-b from-blue-600 to-gray-400 border-lg">
+    <div className="w-full h-screen flex items-center justify-center p-5 bg-gradient-to-b from-blue-600 to-gray-400">
       <div className="w-full max-w-5xl bg-black flex rounded-2xl overflow-hidden shadow-xl">
         {/* Left Section */}
         <div className="w-1/2 bg-blue-900 text-white flex flex-col justify-between p-8">
@@ -90,7 +92,7 @@ export default function Login() {
         </div>
 
         {/* Right Section */}
-        <div className="w-1/2 bg-gray-200 p-10 text-white flex items-center justify-center">
+        <div className="w-1/2 bg-gray-200 p-10 text-black flex items-center justify-center">
           <Card className="w-full max-w-md bg-transparent border-0 shadow-none">
             <CardHeader>
               <CardTitle className="text-2xl font-bold">Login</CardTitle>
@@ -108,9 +110,10 @@ export default function Login() {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
+                            type="email"
                             placeholder="name@example.com"
-                            {...field}
                             className="bg-[#2A273B] border-none text-white"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -130,8 +133,8 @@ export default function Login() {
                             <Input
                               type={showPassword ? "text" : "password"}
                               placeholder="Enter your password"
-                              {...field}
                               className="bg-[#2A273B] border-none text-white pr-10"
+                              {...field}
                             />
                           </FormControl>
                           <button
@@ -139,11 +142,7 @@ export default function Login() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                           >
-                            {showPassword ? (
-                              <EyeOff className="h-5 w-5" />
-                            ) : (
-                              <Eye className="h-5 w-5" />
-                            )}
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                           </button>
                         </div>
                         <FormMessage />
@@ -165,7 +164,7 @@ export default function Login() {
               {/* OR divider */}
               <div className="flex items-center gap-2 my-5">
                 <div className="h-[1px] flex-1 bg-gray-600" />
-                <span className="text-xs text-gray-400">OR</span>
+                <span className="text-xs text-gray-500">OR</span>
                 <div className="h-[1px] flex-1 bg-gray-600" />
               </div>
 
@@ -183,7 +182,7 @@ export default function Login() {
               </div>
 
               {/* Links */}
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-600">
                 Don’t have an account?
                 <NavLink
                   to="/register"

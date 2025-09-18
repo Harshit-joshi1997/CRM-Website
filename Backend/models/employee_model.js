@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const employeeSchema = new Schema({
+  
     name: {
     type: String,
     required: true,
@@ -12,7 +13,11 @@ const employeeSchema = new Schema({
     required: true,
     unique: true,
   },
-  department: {
+    department: {
+    type: String,
+    required: true,
+  },
+  roleType:{
     type: String,
     required: true,
   },

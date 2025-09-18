@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useAuth } from "@/Context/AuthContext"
 import { LogOut, User, Bell } from "lucide-react"
 import {
   DropdownMenu,
@@ -19,33 +20,9 @@ interface Notification {
 }
 
 export function Navbar() {
+  const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
-
-  const handleLogout = () => {
-  // Clear auth data (adjust depending on your app)
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  window.location.href = "/";
-};
-
-interface User {
-  name: string;
-  // You can add other properties like email, id if needed
-}
-
- const [user, setUser] = useState<User | null>(null);
-
-useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
-      }
-    }
-  }, []);
 
   const getInitials = (name: string | undefined) => {
     if (!name) return "U";
@@ -91,13 +68,11 @@ useEffect(() => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* 👤 Profile dropdown */}
+        {/* Profile dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                {/* The fallback is only shown if AvatarImage fails to load.
-                    Since there's no dynamic user image, we'll just show the fallback. */}
                 <AvatarFallback className="bg-blue-600 text-white font-semibold">
                   {initials}
                 </AvatarFallback>
@@ -112,7 +87,7 @@ useEffect(() => {
               <span>Profile</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={logout}>
               <LogOut className="mr-2 h-4 w-4 text-red-500" />
               <span className="text-red-500">Logout</span>
             </DropdownMenuItem>

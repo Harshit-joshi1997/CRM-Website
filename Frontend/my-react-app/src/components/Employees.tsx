@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,14 +10,14 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -27,109 +25,94 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Option } from "react-day-picker";
 
 // Employee type
 type Employee = {
-  id: string; // auto: S.No.
-  jobID: string; // auto: Job ID
+  _id: string;
+  jobID: string;
   name: string;
   email: string;
-  password?: string; // only for adding new employee
+  password?: string;
+  roleType?: string;
   jobTitle: string;
   department: string;
   joiningDate: string;
 };
 
-// Validation schema
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-  jobTitle: z.string().min(2, { message: "Job title must be at least 2 characters." }),
-  department: z.string().min(2, { message: "Department must be at least 2 characters." }),
-  joiningDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
-    message: "Invalid date format (YYYY-MM-DD).",
-  }),
-});
-
-// Sample initial data
-const initialEmployees: Employee[] = [
-  {
-    id: "1",
-    jobID: "JOB-1",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    jobTitle: "Software Engineer",
-    department: "Engineering",
-    joiningDate: "2023-01-15",
-  },
-  {
-    id: "2",
-    jobID: "JOB-2",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    jobTitle: "Product Manager",
-    department: "Product",
-    joiningDate: "2022-06-20",
-  },
-];
+type FormData = {
+  name: string;
+  email: string;
+  password: string;
+  jobTitle: string;
+  roleType: string;
+  department: string;
+  joiningDate: string;
+};
 
 export default function Employees() {
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormData>({
     defaultValues: {
       name: "",
       email: "",
-      jobTitle: "",
       password: "",
+      jobTitle: "",
       department: "",
-      joiningDate: "",
-    },
+      joiningDate: ""
+    }
   });
 
   const filteredEmployees = employees.filter((employee) =>
     employee.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle form submission
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function fetchEmployees() {
     try {
-      // send data to backend
-      const response = await axios.post("http://localhost:5000/employees", values);
+      const response = await axios.get("http://localhost:5000/employees");
+      const employeesFromDb = response.data.map((emp: any, index: number) => ({
+        _id: emp._id,
+        jobID: `CT-${index + 1}`, // Backend doesn't provide this, generating on client
+        name: emp.name,
+        email: emp.email,
+        jobTitle: emp.jobtitle, // Map `jobtitle` from backend to `jobTitle`
+        department: emp.department,
+        joiningDate: new Date(emp.joiningDate).toISOString().split("T")[0],
+      }));
+      setEmployees(employeesFromDb);
+    } catch (error) {
+      console.error("Failed to fetch employees:", error);
+      toast.error("Failed to fetch employees from server.");
+      setEmployees([]); // Reset to empty on error
+    }
+  }
 
-      const { password, ...employeeData } = values;
-      const newEmployee: Employee = {
-        id: (employees.length + 1).toString(), // auto S.No.
-        jobID: `CT0-${employees.length + 1}`, // auto Job ID
-        ...employeeData,
-      };
+  async function onSubmit(data: FormData) {
+    try {
+      await axios.post("http://localhost:5000/employees", data);
 
-      setEmployees([...employees, newEmployee]);
       toast.success("Employee added successfully!");
       form.reset();
       setIsDialogOpen(false);
-
-      console.log("Employee added:", response.data);
-      navigate("/employees");
+      fetchEmployees(); // Refetch employees to get the latest list from the server
     } catch (error) {
       console.error("Failed to add employee:", error);
       let errorMessage = "An unexpected error occurred.";
       if (axios.isAxiosError(error) && error.response) {
-        // The backend responded with an error. Let's try to parse the message.
         const errorData = error.response.data;
-        if (errorData && typeof errorData.message === 'string') {
+        if (errorData && typeof errorData.message === "string") {
           errorMessage = errorData.message;
         }
       }
@@ -138,7 +121,8 @@ export default function Employees() {
   }
 
   const handleDelete = (id: string) => {
-    setEmployees(employees.filter((employee) => employee.id !== id));
+    // This should also be a backend request, but for now, just fixing the client-side logic
+    setEmployees(employees.filter((employee) => employee._id !== id));
     toast("Employee deleted successfully!");
   };
 
@@ -146,11 +130,15 @@ export default function Employees() {
     toast("Edit functionality to be implemented!");
   };
 
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Employee Management</h1>
 
-      {/* Search + Add */}
       <div className="flex justify-between mb-4">
         <Input
           placeholder="Search employees..."
@@ -168,86 +156,128 @@ export default function Employees() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {/* Name */}
                 <FormField
                   control={form.control}
                   name="name"
-                  render={({ field }) => (
+                  rules={{ required: "Name is required" }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter name" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
 
-                {/* Job Title */}
                 <FormField
                   control={form.control}
                   name="jobTitle"
-                  render={({ field }) => (
+                  rules={{ required: "Job Title is required" }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Job Title</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter job title" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
 
-                {/* Department */}
+                 <FormField
+                  control={form.control}
+                  name="roleType"
+                  rules={{ required: "Job Title is required" }}
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel>Role type</FormLabel>
+                      <FormControl>
+                        
+                          <select {...field} className="border p-2 rounded w-full">
+                            <option value="">Select role type</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Employee">Employee</option>
+                          </select>
+                        
+                      </FormControl>
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="department"
-                  render={({ field }) => (
+                  rules={{ required: "Department is required" }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Department</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter department" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
 
-                {/* Joining Date */}
                 <FormField
                   control={form.control}
                   name="joiningDate"
-                  render={({ field }) => (
+                  rules={{ required: "Joining Date is required" }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Joining Date</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
 
-                {/* Email */}
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }) => (
+                  rules={{
+                    required: "Email is required",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Invalid email address"
+                    }
+                  }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" placeholder="employee@example.com" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
 
-                {/* Password with toggle */}
                 <FormField
                   control={form.control}
                   name="password"
-                  render={({ field }) => (
+                  rules={{
+                    required: "Password is required",
+                    minLength: { value: 6, message: "Password must be at least 6 chars" }
+                  }}
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <div className="relative">
@@ -264,14 +294,12 @@ export default function Employees() {
                           onClick={() => setShowPassword((prev) => !prev)}
                           className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
                         >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
-                      <FormMessage />
+                      {fieldState.error && (
+                        <FormMessage>{fieldState.error.message}</FormMessage>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -283,11 +311,8 @@ export default function Employees() {
         </Dialog>
       </div>
 
-      {/* Employee Table */}
       {filteredEmployees.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No Employees in the system
-        </div>
+        <div className="text-center py-8 text-gray-500">No Employees in the system</div>
       ) : (
         <Table>
           <TableHeader>
@@ -302,9 +327,9 @@ export default function Employees() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredEmployees.map((employee) => (
-              <TableRow key={employee.id}>
-                <TableCell>{employee.id}</TableCell>
+            {filteredEmployees.map((employee, index) => (
+              <TableRow key={employee._id}>
+                <TableCell>{index + 1}</TableCell>
                 <TableCell>{employee.jobID}</TableCell>
                 <TableCell>{employee.name}</TableCell>
                 <TableCell>{employee.jobTitle}</TableCell>
@@ -315,14 +340,14 @@ export default function Employees() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEdit(employee.id)}
+                      onClick={() => handleEdit(employee._id)}
                     >
                       Edit
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDelete(employee.id)}
+                      onClick={() => handleDelete(employee._id)}
                     >
                       Delete
                     </Button>

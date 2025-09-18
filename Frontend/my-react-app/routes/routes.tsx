@@ -1,5 +1,4 @@
 import {Routes,Route} from "react-router-dom"
-import LoginPage from "@/login/LoginPage"
 import App from "@/App"
 import Login from "@/login/login"
 import Dashboard from "@/components/Dashboard"
@@ -10,6 +9,8 @@ import Holidays from "@/components/Holidays"
 import Claims from "@/components/Claims"
 import { Leaves } from "@/components/Leaves"
 import { Increment } from "@/components/Increment"
+import PrivateRoute from "@/components/PrivateRoute"
+
 
 export default function AppRoutes(){
     return(
@@ -21,7 +22,7 @@ export default function AppRoutes(){
             <Route path="/verify-email" element={<Login/>}/>
 
 
-
+            <Route element={<PrivateRoute/>}>
             <Route element={<App />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/tasks" element={<Tasks/>} />
@@ -31,6 +32,7 @@ export default function AppRoutes(){
                 <Route path="/claims" element={<Claims/>} />
                 <Route path="/leaves" element={<Leaves/>} />
                 <Route path="/increment" element={<Increment/>} />
+            </Route>
             </Route>
         </Routes>
     )
