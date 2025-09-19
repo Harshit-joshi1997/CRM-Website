@@ -1,5 +1,7 @@
 "use client"
 
+import api from "@/lib/api";
+import { toast } from "sonner";
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -62,11 +64,11 @@ export function Leaves() {
   React.useEffect(() => {
     const fetchLeaves = async () => {
       try {
-        const res = await fetch("/api/leaves") // Your Next.js API route
-        const data = await res.json()
-        setLeaveBalances(data.leaves || [])
+        const response = await api.get("/leaves"); // Use authenticated client
+        setLeaveBalances(response.data.leaves || []);
       } catch (error) {
         console.error("Error fetching leaves:", error)
+        toast.error("Could not load leave balances.");
         setLeaveBalances([])
       } finally {
         setLoading(false)

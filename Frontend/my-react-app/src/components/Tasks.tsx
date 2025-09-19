@@ -1,4 +1,6 @@
 "use client";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -45,10 +47,17 @@ export default function Tasks() {
   const [newTask, setNewTask] = useState<Partial<Task>>({});
 
   useEffect(() => {
-    fetch("/api/tasks")
-      .then((res) => res.json())
-      .then((data) => setTasks(data))
-      .catch(() => setTasks([]));
+    const fetchTasks = async () => {
+      try {
+        const response = await api.get("/tasks"); // Use the authenticated client
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        toast.error("Could not load tasks.");
+        setTasks([]);
+      }
+    };
+    fetchTasks();
   }, []);
 
   const handleAddTask = () => {

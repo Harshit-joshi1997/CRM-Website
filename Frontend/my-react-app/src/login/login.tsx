@@ -1,12 +1,8 @@
-"use client"
+"use client";
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useAuth } from "@/Context/AuthContext";
 import { useNavigate, NavLink } from "react-router-dom";
-import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,48 +16,44 @@ import {
 } from "@/components/ui/form";
 import { Github, Apple, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-});
+import axios from "axios";
+import { useAuth } from "@/Context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = React.useState(false);
   const { login } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm({
     defaultValues: { email: "", password: "" },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("onSubmit called with:", values);
-    toast.info("Attempting to log in...");
+  const onSubmit = async (values: { email: string; password: string }) => {
     try {
       const response = await axios.post("http://localhost:5000/login", values);
-      const { token, user } = response.data || {};
-      if (!token || !user) {
-        toast.error("Login failed: Invalid response from server.");
-        return;
+
+      // API responses are often nested. We'll defensively check for the user and token
+      // in either `response.data` or a nested `response.data.data` object.
+      const responseData = response.data.data || response.data;
+      const { user, token } = responseData;
+
+      if (user ) {
+        login( user);
+
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      } else {
+        toast.error("Invalid login response from server.");
       }
-      login(token, user);
-      toast.success("Login successful!");
-      navigate("/dashboard");
     } catch (error) {
-      console.error("Login failed:", error);
-      let errorMessage = "Invalid credentials. Please try again.";
-      if (axios.isAxiosError(error) && error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (axios.isAxiosError(error) && !error.response) {
-        errorMessage = "Cannot connect to the server. Please try again later.";
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+      console.error("Login error:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Invalid credentials.");
+      } else {
+        toast.error("An unexpected error occurred during login.");
       }
-      toast.error(`Login failed: ${errorMessage}`);
     }
-  }
+  };
 
   return (
     <div className="w-full h-screen flex items-center justify-center p-5 bg-gradient-to-b from-blue-600 to-gray-400">
@@ -121,7 +113,7 @@ export default function Login() {
                     )}
                   />
 
-                  {/* Password with eye toggle */}
+                  {/* Password with toggle */}
                   <FormField
                     control={form.control}
                     name="password"
@@ -142,7 +134,11 @@ export default function Login() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                           >
-                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
                           </button>
                         </div>
                         <FormMessage />
@@ -168,7 +164,7 @@ export default function Login() {
                 <div className="h-[1px] flex-1 bg-gray-600" />
               </div>
 
-              {/* OAuth buttons */}
+              {/* OAuth */}
               <div className="flex gap-3 mb-4">
                 <Button
                   variant="outline"
@@ -204,5 +200,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }

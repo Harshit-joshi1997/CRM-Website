@@ -1,4 +1,6 @@
 "use client"
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 import { useState, useEffect } from "react"
 import {
@@ -42,10 +44,17 @@ export default function Claims() {
   const [newClaim, setNewClaim] = useState<Partial<Claim>>({})
 
   useEffect(() => {
-    fetch("/api/claims")
-      .then((res) => res.json())
-      .then((data) => setClaims(data))
-      .catch(() => setClaims([]))
+    const fetchClaims = async () => {
+      try {
+        const response = await api.get("/claims"); // Use the authenticated client
+        setClaims(response.data);
+      } catch (error) {
+        console.error("Failed to fetch claims:", error);
+        toast.error("Could not load claims.");
+        setClaims([]);
+      }
+    };
+    fetchClaims();
   }, [])
 
   const handleAddClaim = () => {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,11 +28,9 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { Option } from "react-day-picker";
+import { Eye, EyeOff, Trash2, Pencil } from "lucide-react";
+import axios from "axios"; // Keep for the isAxiosError type guard
+import api from "@/lib/api"; // Import our new authenticated API client
 
 // Employee type
 type Employee = {
@@ -62,7 +60,6 @@ export default function Employees() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -70,6 +67,7 @@ export default function Employees() {
       email: "",
       password: "",
       jobTitle: "",
+      roleType: "",
       department: "",
       joiningDate: ""
     }
@@ -81,7 +79,7 @@ export default function Employees() {
 
   async function fetchEmployees() {
     try {
-      const response = await axios.get("http://localhost:5000/employees");
+      const response = await api.get("/employees");
       const employeesFromDb = response.data.map((emp: any, index: number) => ({
         _id: emp._id,
         jobID: `CT-${index + 1}`, // Backend doesn't provide this, generating on client
@@ -101,7 +99,7 @@ export default function Employees() {
 
   async function onSubmit(data: FormData) {
     try {
-      await axios.post("http://localhost:5000/employees", data);
+      await api.post("/employees", data);
 
       toast.success("Employee added successfully!");
       form.reset();
@@ -120,10 +118,20 @@ export default function Employees() {
     }
   }
 
-  const handleDelete = (id: string) => {
-    // This should also be a backend request, but for now, just fixing the client-side logic
-    setEmployees(employees.filter((employee) => employee._id !== id));
-    toast("Employee deleted successfully!");
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/employees/${id}`);
+      // Refetch or filter locally for an optimistic update
+      setEmployees(employees.filter((employee) => employee._id !== id));
+      toast.success("Employee deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete employee:", error);
+      let errorMessage = "An unexpected error occurred.";
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      toast.error(`Failed to delete employee: ${errorMessage}`);
+    }
   };
 
   const handleEdit = (id: string) => {
@@ -133,7 +141,6 @@ export default function Employees() {
   useEffect(() => {
     fetchEmployees();
   }, []);
-
 
   return (
     <div className="container mx-auto p-4">
@@ -342,14 +349,14 @@ export default function Employees() {
                       size="sm"
                       onClick={() => handleEdit(employee._id)}
                     >
-                      Edit
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(employee._id)}
                     >
-                      Delete
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>

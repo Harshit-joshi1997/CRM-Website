@@ -1,8 +1,4 @@
-import { createContext, useState, useEffect, type ReactNode, useRef, useContext } from 'react';
-import { useIdleTimer } from 'react-idle-timer';
-import jwt_decode from 'jwt-decode';
-
-
+import { createContext, useState, useEffect, type ReactNode, useContext } from 'react';
 interface User {
   userType: 'admin' | 'employee' | null;
   role: 'admin' | 'employee' | null;
@@ -31,7 +27,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [token, setToken] = useState<string | null>(null);
+  
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,8 +37,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const loginDataString = localStorage.getItem('loginData');
       if (loginDataString) {
         const { token: savedToken, user: savedUser } = JSON.parse(loginDataString);
-        if (savedToken) {
-          setToken(savedToken);
+        if (savedUser) {
+          
           setUser(savedUser || null);
         }
       }
@@ -54,20 +50,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
+  const login = ( newUser: User) => {
+    
     setUser(newUser);
-    localStorage.setItem('loginData', JSON.stringify({ token: newToken, user: newUser }));
+    localStorage.setItem('loginData', JSON.stringify({  user: newUser }));
   };
 
   const logout = () => {
-    setToken(null);
+    
     setUser(null);
     localStorage.removeItem('loginData');
   };
 
   const contextValue = {
-    token,
+    
     user,
     login,
     logout,
@@ -75,10 +71,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={contextValue }>
       {children}
     </AuthContext.Provider>
   );
 };
 
 
+// --- This is the custom hook you need ---
+// Now, other components can easily access the context data
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

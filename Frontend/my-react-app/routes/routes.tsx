@@ -9,7 +9,8 @@ import Holidays from "@/components/Holidays"
 import Claims from "@/components/Claims"
 import { Leaves } from "@/components/Leaves"
 import { Increment } from "@/components/Increment"
-import PrivateRoute from "@/components/PrivateRoute"
+
+
 
 
 export default function AppRoutes(){
@@ -22,8 +23,9 @@ export default function AppRoutes(){
             <Route path="/verify-email" element={<Login/>}/>
 
 
-            <Route element={<PrivateRoute/>}>
-            <Route element={<App />}>
+            
+            
+              <Route element={<App />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/tasks" element={<Tasks/>} />
                 <Route path="/calendar" element={<Calendar/>} />
@@ -32,8 +34,9 @@ export default function AppRoutes(){
                 <Route path="/claims" element={<Claims/>} />
                 <Route path="/leaves" element={<Leaves/>} />
                 <Route path="/increment" element={<Increment/>} />
-            </Route>
-            </Route>
+              </Route>
+            
+            
         </Routes>
     )
 }

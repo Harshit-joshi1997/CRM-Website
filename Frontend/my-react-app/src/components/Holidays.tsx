@@ -1,4 +1,6 @@
 "use client"
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 import * as React from "react"
 import {
@@ -45,20 +47,17 @@ export default function Holidays() {
   const [newHoliday, setNewHoliday] = React.useState<Partial<Holiday>>({})
 
   React.useEffect(() => {
-    fetch("/api/holidays")
-      .then((res) => res.json())
-      .then((data) => setHolidays(data))
-      .catch(() =>
-        setHolidays([
-          {
-            _id: "1",
-            date: "2025-01-26",
-            name: "Republic Day",
-            type: "Public",
-            description: "National holiday in India",
-          },
-        ])
-      )
+    const fetchHolidays = async () => {
+      try {
+        const response = await api.get("/holidays");
+        setHolidays(response.data);
+      } catch (error) {
+        console.error("Failed to fetch holidays:", error);
+        toast.error("Could not load holidays.");
+        setHolidays([]);
+      }
+    };
+    fetchHolidays();
   }, [])
 
   const handleAddHoliday = () => {
