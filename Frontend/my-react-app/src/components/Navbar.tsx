@@ -46,6 +46,7 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
+    console.log("User logged out");    
     navigate("/"); // Redirect to the login page
   };
 
