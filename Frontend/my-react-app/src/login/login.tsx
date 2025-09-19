@@ -34,8 +34,8 @@ export default function Login() {
 
       // API responses are often nested. We'll defensively check for the user and token
       // in either `response.data` or a nested `response.data.data` object.
-      const responseData = response.data.data || response.data;
-      const { user, token } = responseData;
+      const responseData =  response.data;
+      const { user } = responseData;
 
       if (user ) {
         login( user);

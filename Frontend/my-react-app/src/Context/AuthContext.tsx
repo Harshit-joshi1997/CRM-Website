@@ -1,4 +1,6 @@
 import { createContext, useState, useEffect, type ReactNode, useContext } from 'react';
+
+// Define the User type
 interface User {
   userType: 'admin' | 'employee' | null;
   role: 'admin' | 'employee' | null;
@@ -7,15 +9,13 @@ interface User {
 }
 
 interface AuthContextType {
-  token: string | null;
   user: User | null;
-  login: (token: string, user: User) => void;
+  login: ( user: User) => void;
   logout: () => void;
   isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
-  token: null,
   user: null,
   login: () => {},
   logout: () => {},
@@ -36,9 +36,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const loginDataString = localStorage.getItem('loginData');
       if (loginDataString) {
-        const { token: savedToken, user: savedUser } = JSON.parse(loginDataString);
+        const {  user: savedUser } = JSON.parse(loginDataString);
         if (savedUser) {
-          
           setUser(savedUser || null);
         }
       }
@@ -57,13 +56,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    
     setUser(null);
     localStorage.removeItem('loginData');
   };
 
   const contextValue = {
-    
     user,
     login,
     logout,
