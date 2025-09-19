@@ -39,7 +39,7 @@ export default function Login() {
 
       if (user ) {
         login( user);
-
+        console.log("Login successful:", user);
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
