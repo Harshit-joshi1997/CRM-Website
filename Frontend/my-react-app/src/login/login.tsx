@@ -31,22 +31,16 @@ export default function Login() {
   const onSubmit = async (values: { email: string; password: string }) => {
     try {
       const response = await axios.post("http://localhost:5000/login", values);
-
-      // API responses are often nested. We'll defensively check for the user and token
-      // in either `response.data` or a nested `response.data.data` object.
-      const responseData =  response.data;
-      const { user } = responseData;
-
-      if (user ) {
-        login( user);
-        console.log("Login successful:", user);
+      const { token } = response.data;
+      if (token) {
+        localStorage.setItem("loginData", JSON.stringify({ token }));
+        console.log("Login successful", token, response.data.user);
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {
         toast.error("Invalid login response from server.");
       }
     } catch (error) {
-      console.error("Login error:", error);
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data.message || "Invalid credentials.");
       } else {
