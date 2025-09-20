@@ -8,6 +8,7 @@ import {
   useContext,
 } from "react";
 import { useIdleTimer } from "react-idle-timer";
+import { useNavigate } from "react-router-dom";
 
 // Define the User type
 interface User {
@@ -46,13 +47,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInitialMount = useRef(true);
 
-  const IDLE_TIMEOUT = (5* 60 * 1000); // 5 minutes in ms
+  const IDLE_TIMEOUT = (60 * 1000); // 5 minutes in ms
+
+  const navigate = useNavigate();
 
   // --- Logout logic ---
   const handleLogout = () => {
     console.log("Logging out due to token expiration or idle timeout");
     setToken(null);
     setUser(null);
+    navigate("/", { replace: true });
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
