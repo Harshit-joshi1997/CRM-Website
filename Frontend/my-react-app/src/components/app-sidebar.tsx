@@ -3,14 +3,16 @@ import { NavLink } from "react-router-dom"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Children } from "react"
+} from "@/components/ui/sidebar";
+import  Chatbox  from "./Chatbox";
+
 
 // Menu items
 const items = [
@@ -51,6 +53,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <Chatbox />
+      </SidebarFooter>
     </Sidebar>
   )
 }
