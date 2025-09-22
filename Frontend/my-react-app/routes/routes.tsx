@@ -18,21 +18,15 @@ import { Navigate } from "react-router-dom"
 
 export default function AppRoutes(){
 
-  const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-      // Check for token in localStorage
-      const loginData = localStorage.getItem('loginData');
-      let token = null;
-      if (loginData) {
-        try {
-          token = JSON.parse(loginData).token;
-        } catch (e) {
-          token = null;
-        }
-      }
-      if (!token && !useAuth().user) {
-        return <Navigate to="/" replace />;
-   }
-   return children;
+  const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
+    const { user, token, isLoading } = useAuth();
+
+    if (isLoading) {
+      // You can render a loading spinner here while the session is being restored.
+      return <div>Loading session...</div>;
+    }
+
+    return user && token ? children : <Navigate to="/" replace />;
   };
 
   return(

@@ -31,10 +31,10 @@ export default function Login() {
   const onSubmit = async (values: { email: string; password: string }) => {
     try {
       const response = await axios.post("http://localhost:5000/login", values);
-      const { token } = response.data;
-      if (token) {
-        localStorage.setItem("loginData", JSON.stringify({ token }));
-        console.log("Login successful", token, response.data.user);
+      const { token, user } = response.data;
+      if (token && user) {
+        login(user, token);
+        console.log("Login successful", token, user);
         toast.success("Login successful!");
         navigate("/dashboard");
       } else {

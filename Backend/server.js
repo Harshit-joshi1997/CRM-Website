@@ -31,23 +31,23 @@ const port = process.env.PORT || 5000;
 app.use(cors()); 
 app.use(express.json()); 
 
-const jwtSecret = 'YOUR_SECRET_KEY'; // Replace with your actual secret key
-
-
 app.post('/login', async (req, res) => {
-const { email, password } = req.body;
-
   try {
-   const { email, password } = req.body;
-   if (!email || !password) {
-     return res.status(400).json({ message: 'All fields are required.' });
-   }
-   const user = await User.findOne({ email });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+    const user = await User.findOne({ email }).lean();
     if (!user || user.password !== password) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
-    const token = jwt.sign({ userId: user._id, email: user.email }, jwtSecret, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login successful', token });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const { password: _, ...userWithoutPassword } = user;
+    res.status(200).json({ message: 'Login successful', token, user: userWithoutPassword });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
