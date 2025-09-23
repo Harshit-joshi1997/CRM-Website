@@ -28,10 +28,10 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="bg-gradient-to-b from-gray-100 to-gray-200 text-black border-r border-gray-200">
+    <Sidebar className="bg-gradient-to-b from-gray-100 to-gray-200 text-black border-r border-gray-200 overflow-y-auto fixed  h-full w-64 pt-1">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="   text-xl  text-bold text-indigo-600 "> CongoTech<Globe color="#2626c5ff" /></SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xl font-bold text-indigo-600"> CongoTech<Globe color="#2626c5ff" /></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

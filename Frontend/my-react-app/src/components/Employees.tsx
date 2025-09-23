@@ -85,9 +85,9 @@ export default function Employees() {
         jobID: `CT-${index + 1}`, // Backend doesn't provide this, generating on client
         name: emp.name,
         email: emp.email,
-        jobTitle: emp.jobtitle, // Map `jobtitle` from backend to `jobTitle`
+        jobTitle: emp.jobTitle,
         department: emp.department,
-        joiningDate: new Date(emp.joiningDate).toISOString().split("T")[0],
+        joiningDate: emp.joiningDate ? new Date(emp.joiningDate).toISOString().split("T")[0] : "",
       }));
       setEmployees(employeesFromDb);
     } catch (error) {
@@ -109,9 +109,13 @@ export default function Employees() {
       console.error("Failed to add employee:", error);
       let errorMessage = "An unexpected error occurred.";
       if (axios.isAxiosError(error) && error.response) {
+        // The backend sends { message: '...', error: '...' } on 500
+        // and { message: '...' } on 4xx
         const errorData = error.response.data;
-        if (errorData && typeof errorData.message === "string") {
-          errorMessage = errorData.message;
+        if (errorData?.error) {
+          errorMessage = errorData.error; // Show the detailed Mongoose error
+        } else if (errorData?.message) {
+          errorMessage = errorData.message; // Show the generic error message
         }
       }
       toast.error(`Failed to add employee: ${errorMessage}`);

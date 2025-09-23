@@ -7,19 +7,19 @@ const employeeSchema = new Schema({
     name: {
     type: String,
     required: true,
-    unique: true,
-  },jobtitle: {
+  },
+  jobTitle: {
     type: String,
     required: true,
-    unique: true,
   },
     department: {
     type: String,
     required: true,
   },
-  roleType:{
+  role: {
     type: String,
-    required: true,
+    enum: ['Admin', 'Employee'],
+    default: 'Employee'
   },
   joiningDate: {
     type: Date,
