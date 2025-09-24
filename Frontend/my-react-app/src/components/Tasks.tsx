@@ -1,5 +1,6 @@
 "use client";
 import api from "@/lib/api";
+import { useAuth } from "@/Context/AuthContext";
 import { toast } from "sonner";
 
 import React, { useEffect, useState } from "react";
@@ -47,6 +48,8 @@ export default function Tasks() {
   const [newTask, setNewTask] = useState<Partial<Task>>({});
   const [editTask, setEditTask] = useState<Partial<Task> | null>(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "Admin";
 
   // ✅ Fetch tasks
   useEffect(() => {
@@ -209,90 +212,92 @@ export default function Tasks() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Dialog
-                      open={!!editTask && editTask._id === task._id}
-                      onOpenChange={(open) =>
-                        !open && setEditTask(null)
-                      }
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setEditTask(task)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edit Task</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <Input
-                            value={editTask?.employee || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, employee: e.target.value })
-                            }
-                          />
-                          <Input
-                            value={editTask?.designation || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, designation: e.target.value })
-                            }
-                          />
-                          <Input
-                            value={editTask?.department || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, department: e.target.value })
-                            }
-                          />
-                          <Input
-                            value={editTask?.task || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, task: e.target.value })
-                            }
-                          />
-                          <Input
-                            value={editTask?.assignee || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, assignee: e.target.value })
-                            }
-                          />
-                          <Input
-                            type="date"
-                            value={editTask?.date || ""}
-                            onChange={(e) =>
-                              setEditTask({ ...editTask!, date: e.target.value })
-                            }
-                          />
-                          <div>
-                            <Label>Status</Label>
-                            <select
-                              className="w-full border rounded px-3 py-2 mt-1"
-                              value={editTask?.status || "Pending"}
-                              onChange={(e) =>
-                                setEditTask({
-                                  ...editTask!,
-                                  status: e.target.value as Task["status"],
-                                })
-                              }
-                            >
-                              <option value="Pending">Pending</option>
-                              <option value="In Progress">In Progress</option>
-                              <option value="Completed">Completed</option>
-                            </select>
-                          </div>
+                    {isAdmin && (
+                      <Dialog
+                        open={!!editTask && editTask._id === task._id}
+                        onOpenChange={(open) =>
+                          !open && setEditTask(null)
+                        }
+                      >
+                        <DialogTrigger asChild>
                           <Button
-                            onClick={handleUpdateTask}
-                            className="w-full"
-                            disabled={loading}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditTask(task)}
                           >
-                            {loading ? "Updating..." : "Update Task"}
+                            <Pencil className="h-4 w-4" />
                           </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Task</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <Input
+                              value={editTask?.employee || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, employee: e.target.value })
+                              }
+                            />
+                            <Input
+                              value={editTask?.designation || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, designation: e.target.value })
+                              }
+                            />
+                            <Input
+                              value={editTask?.department || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, department: e.target.value })
+                              }
+                            />
+                            <Input
+                              value={editTask?.task || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, task: e.target.value })
+                              }
+                            />
+                            <Input
+                              value={editTask?.assignee || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, assignee: e.target.value })
+                              }
+                            />
+                            <Input
+                              type="date"
+                              value={editTask?.date || ""}
+                              onChange={(e) =>
+                                setEditTask({ ...editTask!, date: e.g.value })
+                              }
+                            />
+                            <div>
+                              <Label>Status</Label>
+                              <select
+                                className="w-full border rounded px-3 py-2 mt-1"
+                                value={editTask?.status || "Pending"}
+                                onChange={(e) =>
+                                  setEditTask({
+                                    ...editTask!,
+                                    status: e.target.value as Task["status"],
+                                  })
+                                }
+                              >
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                              </select>
+                            </div>
+                            <Button
+                              onClick={handleUpdateTask}
+                              className="w-full"
+                              disabled={loading}
+                            >
+                              {loading ? "Updating..." : "Update Task"}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

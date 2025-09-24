@@ -187,7 +187,7 @@ app.post('/tasks', authenticate, async (req, res) => {
   }
 });
 
-app.put('/tasks/:id', authenticate, async (req, res) => {
+app.put('/tasks/:id', authenticate, authorize(['Admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
