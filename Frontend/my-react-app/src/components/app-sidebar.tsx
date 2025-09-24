@@ -1,5 +1,6 @@
 import { Calendar, LayoutDashboard ,TagsIcon,UserRound, SunDim, IndianRupee, Ship, Building2,Globe} from "lucide-react"
 import { NavLink } from "react-router-dom"
+import { useAuth } from "@/Context/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -15,18 +16,30 @@ import  Chatbox  from "./Chatbox";
 
 
 // Menu items
-const items = [
+const allItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Tasks", url: "/tasks", icon: TagsIcon },
   { title: "Annual Increment", url: "/increment", icon: Building2 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Leaves", url: "/leaves", icon: Ship },
   { title: "Claims & expenses", url: "/claims", icon: IndianRupee },
-  { title: "Employees", url: "/employees", icon: UserRound },
+  { title: "Employees", url: "/employees", icon: UserRound, roles: ["Admin"] }, // Admin only
   { title: "Holidays", url: "/holidays", icon: SunDim },
 ]
 
 export function AppSidebar() {
+  const { user } = useAuth();
+
+  // Filter sidebar items based on the user's role
+  const visibleItems = allItems.filter(item => {
+    // If an item has no roles array, it's visible to everyone
+    if (!item.roles) {
+      return true;
+    }
+    // If it has a roles array, check if the user's role is included
+    return user?.role && item.roles.includes(user.role);
+  });
+
   return (
     <Sidebar className="bg-gradient-to-b from-gray-100 to-gray-200 text-black border-r border-gray-200 overflow-y-auto fixed  h-full w-64 pt-1">
       <SidebarContent>
@@ -34,7 +47,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-xl font-bold text-indigo-600"> CongoTech<Globe color="#2626c5ff" /></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                   <NavLink

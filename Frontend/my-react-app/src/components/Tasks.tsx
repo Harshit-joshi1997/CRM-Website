@@ -113,76 +113,58 @@ export default function Tasks() {
             </Button>
           </DialogTrigger>
          <DialogContent>
-  <DialogHeader>
-    <DialogTitle>Edit Task</DialogTitle>
-  </DialogHeader>
-  <div className="space-y-4">
-    <Input
-      value={editTask?.employee || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, employee: e.target.value })
-      }
-    />
-    <Input
-      value={editTask?.designation || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, designation: e.target.value })
-      }
-    />
-    <Input
-      value={editTask?.department || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, department: e.target.value })
-      }
-    />
-    <Input
-      value={editTask?.task || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, task: e.target.value })
-      }
-    />
-    <Input
-      value={editTask?.assignee || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, assignee: e.target.value })
-      }
-    />
-    <Input
-      type="date"
-      value={editTask?.date || ""}
-      onChange={(e) =>
-        setEditTask({ ...editTask!, date: e.target.value })
-      }
-    />
-
-    {/* ✅ New: Status dropdown */}
-    <div>
-      <label className="block text-sm font-medium mb-1">Status</label>
-      <select
-        className="w-full border rounded px-3 py-2"
-        value={editTask?.status || "Pending"}
-        onChange={(e) =>
-          setEditTask({
-            ...editTask!,
-            status: e.target.value as Task["status"],
-          })
-        }
-      >
-        <option value="Pending">Pending ❌</option>
-        <option value="In Progress">In Progress ⏳</option>
-        <option value="Completed">Completed ✅</option>
-      </select>
-    </div>
-
-    <Button
-      onClick={handleUpdateTask}
-      className="w-full"
-      disabled={loading}
-    >
-      {loading ? "Updating..." : "Update Task"}
-    </Button>
-  </div>
-</DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Task</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Employee Name"
+                value={newTask?.employee || ""}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, employee: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Designation"
+                value={newTask?.designation || ""}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, designation: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Department"
+                value={newTask?.department || ""}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, department: e.target.value })
+                }
+              />
+              <Input
+                placeholder="Task"
+                value={newTask?.task || ""}
+                onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
+              />
+              <Input
+                placeholder="Assignee"
+                value={newTask?.assignee || ""}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, assignee: e.target.value })
+                }
+              />
+              <Input
+                type="date"
+                value={newTask?.date || ""}
+                onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
+              />
+              {/* Status is usually 'Pending' by default for new tasks */}
+              <Button
+                onClick={handleAddTask}
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? "Adding..." : "Add Task"}
+              </Button>
+            </div>
+          </DialogContent>
 
         </Dialog>
       </CardHeader>

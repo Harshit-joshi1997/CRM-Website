@@ -23,6 +23,19 @@ const authenticate = (req, res, next) => {
   }
 };
 
+// JWT authorization middleware to check for specific roles
+const authorize = (allowedRoles) => {
+  return (req, res, next) => {
+    const userRole = req.user?.role;
+    if (!userRole || !allowedRoles.includes(userRole)) {
+      return res.status(403).json({ 
+        message: 'Forbidden: You do not have the required permissions.' 
+      });
+    }
+    next();
+  };
+};
+
 
 dotenv.config();
 
@@ -93,7 +106,7 @@ app.post('/login', async (req, res) => {
 
 
 
-app.post('/employees', authenticate, async (req, res) => {
+app.post('/employees', authenticate, authorize(['Admin']), async (req, res) => {
   try {
     // For debugging: log the incoming request body
     console.log('Received /employees POST request with body:', req.body);
@@ -122,7 +135,7 @@ app.post('/employees', authenticate, async (req, res) => {
   }
 });
 
-app.get('/employees', authenticate, async (req, res) => {
+app.get('/employees', authenticate, authorize(['Admin']), async (req, res) => {
   try {
     const users = await User.find({}, { password: 0 }); // Exclude password
     res.status(200).json(users);
@@ -131,7 +144,7 @@ app.get('/employees', authenticate, async (req, res) => {
   }
 });
 
-app.delete('/employees/:id', authenticate, async (req, res) => {
+app.delete('/employees/:id', authenticate, authorize(['Admin']), async (req, res) => {
   try {
     const { id } = req.params;
     const deletedUser = await User.findByIdAndDelete(id);
@@ -178,6 +191,9 @@ app.put('/tasks/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    // The _id field is immutable and should not be part of the update operation.
+    delete updates._id;
 
     const updatedTask = await Task.findByIdAndUpdate(id, updates, { new: true });
 
